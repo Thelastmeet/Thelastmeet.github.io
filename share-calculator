@@ -1,0 +1,53 @@
+import { useState } from "react";
+
+export default function ShareCalculator() {
+  const [buyPrice, setBuyPrice] = useState(0);
+  const [sellPrice, setSellPrice] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+  const [brokerageRate, setBrokerageRate] = useState(0.0036);
+
+  const SEBON_FEE_RATE = 0.00015;
+  const CGT_RATE_LOW = 0.05;
+  const CGT_RATE_HIGH = 0.075;
+
+  // Buy Calculation
+  const totalInvestment = (buyPrice * quantity);
+  const brokerageBuy = totalInvestment * brokerageRate;
+  const sebonBuy = totalInvestment * SEBON_FEE_RATE;
+  const totalBuyCost = totalInvestment + brokerageBuy + sebonBuy;
+
+  // Sell Calculation
+  const totalSellAmount = sellPrice * quantity;
+  const brokerageSell = totalSellAmount * brokerageRate;
+  const sebonSell = totalSellAmount * SEBON_FEE_RATE;
+  const totalSellCost = brokerageSell + sebonSell;
+  const profit = totalSellAmount - totalBuyCost;
+  const capitalGainsTax = profit > 0 ? profit * (profit < 100000 ? CGT_RATE_LOW : CGT_RATE_HIGH) : 0;
+  const netReceivable = totalSellAmount - totalSellCost - capitalGainsTax;
+
+  // Break-even Price
+  const breakEvenPrice = totalBuyCost / quantity;
+
+  return (
+    <div className="p-4 max-w-md mx-auto bg-white shadow-lg rounded-lg">
+      <h2 className="text-xl font-bold mb-4">NEPSE Share Calculator</h2>
+      <label className="block mb-2">Buy Price: <input type="number" value={buyPrice} onChange={(e) => setBuyPrice(parseFloat(e.target.value))} className="border p-1 w-full" /></label>
+      <label className="block mb-2">Quantity: <input type="number" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} className="border p-1 w-full" /></label>
+      <label className="block mb-2">Sell Price: <input type="number" value={sellPrice} onChange={(e) => setSellPrice(parseFloat(e.target.value))} className="border p-1 w-full" /></label>
+      <label className="block mb-2">Brokerage Rate:
+        <select value={brokerageRate} onChange={(e) => setBrokerageRate(parseFloat(e.target.value))} className="border p-1 w-full">
+          <option value={0.0027}>0.27%</option>
+          <option value={0.0036}>0.36%</option>
+          <option value={0.0043}>0.43%</option>
+        </select>
+      </label>
+      <div className="mt-4 p-3 bg-gray-100 rounded">
+        <p><strong>Total Investment:</strong> Rs. {totalBuyCost.toFixed(2)}</p>
+        <p><strong>Net Receivable:</strong> Rs. {netReceivable.toFixed(2)}</p>
+        <p><strong>Profit/Loss:</strong> Rs. {profit.toFixed(2)}</p>
+        <p><strong>Capital Gains Tax:</strong> Rs. {capitalGainsTax.toFixed(2)}</p>
+        <p><strong>Break-even Price:</strong> Rs. {breakEvenPrice.toFixed(2)}</p>
+      </div>
+    </div>
+  );
+}
